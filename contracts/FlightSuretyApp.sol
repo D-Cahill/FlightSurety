@@ -34,6 +34,8 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
+    bool private operational = true;
+
  
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -50,7 +52,7 @@ contract FlightSuretyApp {
     modifier requireIsOperational() 
     {
          // Modify to call data contract's status
-        require(true, "Contract is currently not operational");  
+        require(operational, "Contract is currently not operational");  
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -84,11 +86,15 @@ contract FlightSuretyApp {
     /********************************************************************************************/
 
     function isOperational() 
-                            public 
-                            pure 
+                            public  
                             returns(bool) 
     {
-        return true;  // Modify to call data contract's status
+        return operational;  // Modify to call data contract's status
+    }
+
+    function setOperatingStatus(bool mode) external requireIsOperational requireContractOwner
+    {
+        operational = mode;
     }
 
     /********************************************************************************************/
