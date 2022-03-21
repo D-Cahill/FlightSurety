@@ -92,7 +92,7 @@ contract FlightSuretyApp {
         return operational;  // Modify to call data contract's status
     }
 
-    function setOperatingStatus(bool mode) external requireIsOperational requireContractOwner
+    function setOperatingStatus(bool mode) external requireContractOwner
     {
         operational = mode;
     }
@@ -110,7 +110,7 @@ contract FlightSuretyApp {
                             (   
                             )
                             external
-                            pure
+                            requireIsOperational
                             returns(bool success, uint256 votes)
     {
         return (success, 0);
