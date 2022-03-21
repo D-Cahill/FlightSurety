@@ -181,6 +181,11 @@ contract FlightSuretyData {
         fund();
     }
 
+    function authorizeCaller(address caller) public returns (bool){
+        require(msg.sender == contractOwner,  "unauthorized");
+        return true;
+    }
+
 
 }
 
