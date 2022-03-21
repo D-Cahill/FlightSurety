@@ -65,6 +65,15 @@ contract FlightSuretyApp {
         _;
     }
 
+    /**
+    * @dev Modifier that requires the "ContractOwner" account to be the function caller
+    */
+    modifier requireOperationalChange(bool mode)
+    {
+        require(mode != operational, "The contract status is already in this mode");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -92,7 +101,7 @@ contract FlightSuretyApp {
         return operational;  // Modify to call data contract's status
     }
 
-    function setOperatingStatus(bool mode) external requireContractOwner
+    function setOperatingStatus(bool mode) external requireContractOwner requireOperationalChange(mode)
     {
         operational = mode;
     }
