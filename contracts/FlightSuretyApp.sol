@@ -36,6 +36,16 @@ contract FlightSuretyApp {
 
     bool private operational = true;
 
+    address[] multiCalls = new address[](0);
+
+    uint constant M = 2;
+
+    struct Airlines {
+        bool isRegistered;
+        bool isAdmin;
+    }
+    mapping(address => Airlines) airlines;   // Mapping for storing airlines
+
  
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -62,15 +72,6 @@ contract FlightSuretyApp {
     modifier requireContractOwner()
     {
         require(msg.sender == contractOwner, "Caller is not contract owner");
-        _;
-    }
-
-    /**
-    * @dev Modifier that requires the "ContractOwner" account to be the function caller
-    */
-    modifier requireOperationalChange(bool mode)
-    {
-        require(mode != operational, "The contract status is already in this mode");
         _;
     }
 
@@ -101,9 +102,25 @@ contract FlightSuretyApp {
         return operational;  // Modify to call data contract's status
     }
 
-    function setOperatingStatus(bool mode) external requireContractOwner requireOperationalChange(mode)
+    function setOperatingStatus(bool mode) external requireContractOwner
     {
-        operational = mode;
+        require(mode != operational, "New mode must be different from existing mode");
+        require(airlines[msg.sender].isAdmin, "Caller is not an admin");
+
+        bool isDuplicate = false;
+        for(uint c=0; c<multiCalls.length; c++) {
+            if (multiCalls[c] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Caller has already called this function.");
+
+        multiCalls.push(msg.sender);
+        if (multiCalls.length >= M) {
+            operational = mode;      
+            multiCalls = new address[](0);      
+        }
     }
 
     /********************************************************************************************/
@@ -117,12 +134,18 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (   
+                                address account,
+                                bool isAdmin
                             )
                             external
                             requireIsOperational
-                            returns(bool success, uint256 votes)
+                            requireContractOwner
     {
-        return (success, 0);
+        require(!airlines[account].isRegistered, "User is already registered.");
+        airlines[account] = Airlines({
+                                                isRegistered: true,
+                                                isAdmin: isAdmin
+                                            });
     }
 
 
