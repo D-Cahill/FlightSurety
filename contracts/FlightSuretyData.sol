@@ -100,9 +100,10 @@ contract FlightSuretyData {
     */   
     function registerAirline
                             (   
+                                address airline
                             )
                             external
-                            pure
+                            returns (bool)
     {
     }
 
@@ -179,6 +180,11 @@ contract FlightSuretyData {
                             payable 
     {
         fund();
+    }
+
+    function authorizeCaller(address caller) public returns (bool){
+        require(msg.sender == contractOwner,  "unauthorized");
+        return true;
     }
 
 

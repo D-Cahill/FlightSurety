@@ -34,6 +34,18 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
+    bool private operational = true;
+
+    address[] multiCalls = new address[](0);
+
+    uint constant M = 2;
+
+    struct Airlines {
+        bool isRegistered;
+        bool isAdmin;
+    }
+    mapping(address => Airlines) airlines;   // Mapping for storing airlines
+
  
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -50,7 +62,7 @@ contract FlightSuretyApp {
     modifier requireIsOperational() 
     {
          // Modify to call data contract's status
-        require(true, "Contract is currently not operational");  
+        require(operational, "Contract is currently not operational");  
         _;  // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -84,11 +96,31 @@ contract FlightSuretyApp {
     /********************************************************************************************/
 
     function isOperational() 
-                            public 
-                            pure 
+                            public  
                             returns(bool) 
     {
-        return true;  // Modify to call data contract's status
+        return operational;  // Modify to call data contract's status
+    }
+
+    function setOperatingStatus(bool mode) external requireContractOwner
+    {
+        require(mode != operational, "New mode must be different from existing mode");
+        require(airlines[msg.sender].isAdmin, "Caller is not an admin");
+
+        bool isDuplicate = false;
+        for(uint c=0; c<multiCalls.length; c++) {
+            if (multiCalls[c] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Caller has already called this function.");
+
+        multiCalls.push(msg.sender);
+        if (multiCalls.length >= M) {
+            operational = mode;      
+            multiCalls = new address[](0);      
+        }
     }
 
     /********************************************************************************************/
@@ -102,12 +134,18 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (   
+                                address account,
+                                bool isAdmin
                             )
                             external
-                            pure
-                            returns(bool success, uint256 votes)
+                            requireIsOperational
+                            requireContractOwner
     {
-        return (success, 0);
+        require(!airlines[account].isRegistered, "User is already registered.");
+        airlines[account] = Airlines({
+                                                isRegistered: true,
+                                                isAdmin: isAdmin
+                                            });
     }
 
 
