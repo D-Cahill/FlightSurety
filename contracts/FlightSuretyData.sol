@@ -13,14 +13,9 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     // Airline Struct
     struct Airline {
-        uint id;
+        string id;
         string name;
-        bool approved;
-        bool active;
-        uint balance;
-        uint reserved;
-        uint votes_needed;
-        uint total_votes;
+        bool isRegistered;
     }
     // Count of Airlines
     uint private airline_count = 0;
@@ -104,24 +99,7 @@ contract FlightSuretyData {
                             external
                             requireContractOwner 
     {
-        require(mode != operational, "New mode must be different from existing mode");
-        require(userProfiles[msg.sender].isAdmin, "Caller is not an admin");
-
-        bool isDuplicate = false;
-        for(uint c=0; c<multiCalls.length; c++) {
-            if (multiCalls[c] == msg.sender) {
-                isDuplicate = true;
-                break;
-            }
-        }
-        require(!isDuplicate, "Caller has already called this function.");
-
-        multiCalls.push(msg.sender);
-        if (multiCalls.length >= M) {
-            operational = mode;      
-            multiCalls = new address[](0);      
-        }
-    }
+        operational = mode;
     }
 
     /********************************************************************************************/
@@ -134,14 +112,20 @@ contract FlightSuretyData {
     *
     */   
      function registerAirline
-                            (string id,
+                            (string airline_id,
                             string airline_name,
-                            address airline_address   
+                            address account   
                             )
                             external
                             requireIsOperational
     {
-        require((airlines[airline_address].approved == false), "Already registred");
+        require(!airlines[account].isRegistered, "User is already registered.");
+
+        airlines[account] = Airline({
+                                                id: airline_id,
+                                                isRegistered: true,
+                                                name: airline_name
+                                            });
         
     }
 
