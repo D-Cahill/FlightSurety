@@ -11,10 +11,28 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    // Airline Struct
+    struct Airline {
+        uint id;
+        string name;
+        bool approved;
+        bool active;
+        uint balance;
+        uint reserved;
+        uint votes_needed;
+        uint total_votes;
+    }
+    // Count of Airlines
+    uint private airline_count = 0;
+    // Mapping For Airlines
+    mapping(address => Airline) airlines;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
+
+    event AirlineRegistered(address _address, uint id, string name);
+    event AirlineApproved(address _address, uint id, string name);
 
 
     /**
@@ -86,7 +104,24 @@ contract FlightSuretyData {
                             external
                             requireContractOwner 
     {
-        operational = mode;
+        require(mode != operational, "New mode must be different from existing mode");
+        require(userProfiles[msg.sender].isAdmin, "Caller is not an admin");
+
+        bool isDuplicate = false;
+        for(uint c=0; c<multiCalls.length; c++) {
+            if (multiCalls[c] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Caller has already called this function.");
+
+        multiCalls.push(msg.sender);
+        if (multiCalls.length >= M) {
+            operational = mode;      
+            multiCalls = new address[](0);      
+        }
+    }
     }
 
     /********************************************************************************************/
@@ -98,13 +133,16 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline
-                            (   
-                                address airline
+     function registerAirline
+                            (string id,
+                            string airline_name,
+                            address airline_address   
                             )
                             external
-                            returns (bool)
+                            requireIsOperational
     {
+        require((airlines[airline_address].approved == false), "Already registred");
+        
     }
 
 
