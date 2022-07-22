@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.3;
 
 // It's important to avoid vulnerabilities due to numeric overflow bugs
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
@@ -180,25 +180,25 @@ contract FlightSuretyApp {
 
 
     // Generate a request for oracles to fetch flight information
-    function fetchFlightStatus
-                        (
-                            address airline,
-                            string flight,
-                            uint256 timestamp                            
-                        )
-                        external
-    {
-        uint8 index = getRandomIndex(msg.sender);
+    // function fetchFlightStatus
+    //                     (
+    //                         address airline,
+    //                         string memory flight,
+    //                         uint256 timestamp                            
+    //                     )
+    //                     external
+    // {
+    //     uint8 index = getRandomIndex(msg.sender);
 
-        // Generate a unique key for storing the request
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
-        oracleResponses[key] = ResponseInfo({
-                                                requester: msg.sender,
-                                                isOpen: true
-                                            });
+    //     // Generate a unique key for storing the request
+    //     bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
+    //     oracleResponses[key] = ResponseInfo({
+    //                                             requester: msg.sender,
+    //                                             isOpen: true
+    //                                         });
 
-        emit OracleRequest(index, airline, flight, timestamp);
-    } 
+    //     emit OracleRequest(index, airline, flight, timestamp);
+    // } 
 
 
 // region ORACLE MANAGEMENT
@@ -246,34 +246,34 @@ contract FlightSuretyApp {
 
 
     // Register an oracle with the contract
-    function registerOracle
-                            (
-                            )
-                            external
-                            payable
-    {
-        // Require registration fee
-        require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
+    // function registerOracle
+    //                         (
+    //                         )
+    //                         external
+    //                         payable
+    // {
+    //     // Require registration fee
+    //     require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
 
-        uint8[3] memory indexes = generateIndexes(msg.sender);
+    //     uint8[3] memory indexes = generateIndexes(msg.sender);
 
-        oracles[msg.sender] = Oracle({
-                                        isRegistered: true,
-                                        indexes: indexes
-                                    });
-    }
+    //     oracles[msg.sender] = Oracle({
+    //                                     isRegistered: true,
+    //                                     indexes: indexes
+    //                                 });
+    // }
 
-    function getMyIndexes
-                            (
-                            )
-                            view
-                            external
-                            returns(uint8[3])
-    {
-        require(oracles[msg.sender].isRegistered, "Not registered as an oracle");
+    // function getMyIndexes
+    //                         (
+    //                         )
+    //                         view
+    //                         external
+    //                         returns(uint8[3])
+    // {
+    //     require(oracles[msg.sender].isRegistered, "Not registered as an oracle");
 
-        return oracles[msg.sender].indexes;
-    }
+    //     return oracles[msg.sender].indexes;
+    // }
 
 
 
@@ -286,7 +286,7 @@ contract FlightSuretyApp {
                         (
                             uint8 index,
                             address airline,
-                            string flight,
+                            string memory flight,
                             uint256 timestamp,
                             uint8 statusCode
                         )
@@ -316,7 +316,7 @@ contract FlightSuretyApp {
     function getFlightKey
                         (
                             address airline,
-                            string flight,
+                            string memory flight,
                             uint256 timestamp
                         )
                         pure
@@ -327,28 +327,28 @@ contract FlightSuretyApp {
     }
 
     // Returns array of three non-duplicating integers from 0-9
-    function generateIndexes
-                            (                       
-                                address account         
-                            )
-                            internal
-                            returns(uint8[3])
-    {
-        uint8[3] memory indexes;
-        indexes[0] = getRandomIndex(account);
+    // function generateIndexes
+    //                         (                       
+    //                             address account         
+    //                         )
+    //                         internal
+    //                         returns(uint8[3])
+    // {
+    //     uint8[3] memory indexes;
+    //     indexes[0] = getRandomIndex(account);
         
-        indexes[1] = indexes[0];
-        while(indexes[1] == indexes[0]) {
-            indexes[1] = getRandomIndex(account);
-        }
+    //     indexes[1] = indexes[0];
+    //     while(indexes[1] == indexes[0]) {
+    //         indexes[1] = getRandomIndex(account);
+    //     }
 
-        indexes[2] = indexes[1];
-        while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
-            indexes[2] = getRandomIndex(account);
-        }
+    //     indexes[2] = indexes[1];
+    //     while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
+    //         indexes[2] = getRandomIndex(account);
+    //     }
 
-        return indexes;
-    }
+    //     return indexes;
+    // }
 
     // Returns array of three non-duplicating integers from 0-9
     function getRandomIndex

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.8.3;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -26,7 +26,7 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    event AirlineRegistered(address _address, uint id, string name);
+    event AirlineRegistered(string name);
     event AirlineApproved(address _address, uint id, string name);
 
 
@@ -112,8 +112,8 @@ contract FlightSuretyData {
     *
     */   
      function registerAirline
-                            (string airline_id,
-                            string airline_name,
+                            (string memory airline_id,
+                            string memory airline_name,
                             address account   
                             )
                             external
@@ -126,6 +126,8 @@ contract FlightSuretyData {
                                                 isRegistered: true,
                                                 name: airline_name
                                             });
+        airline_count++;
+        emit AirlineRegistered(airline_name);
         
     }
 
@@ -197,12 +199,12 @@ contract FlightSuretyData {
     * @dev Fallback function for funding smart contract.
     *
     */
-    function() 
-                            external 
-                            payable 
-    {
-        fund();
-    }
+    // function() 
+    //                         external 
+    //                         payable 
+    // {
+    //     fund();
+    // }
 
     function authorizeCaller(address caller) public returns (bool){
         require(msg.sender == contractOwner,  "unauthorized");
